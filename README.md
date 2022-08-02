@@ -34,9 +34,19 @@ httpClient.SendAsync(request)...
 + https://thomaslevesque.com/2016/12/08/fun-with-the-httpclient-pipeline/
 
 ## Best Practices
-+ https://bytedev.medium.com/net-core-httpclient-best-practices-4c1b20e32c6
-+ https://makolyte.com/csharp-how-to-send-a-file-with-httpclient/ (Send File) (Upload File)
++ https://bytedev.medium.com/net-core-httpclient-best-practices-4c1b20e32c6 (Best Practices)
++ https://www.thinktecture.com/en/asp-net-core/aspnet-core-webapi-performance/ (Performance)
++ https://josef.codes/efficient-file-uploads-with-dotnet/ (Efficient) (Upload File)
+  + Read file content with a stream
+  + Using a stream allows us to operate on small portions of the file in chunks instead of allocating the whole file.
+  + When using a stream, the flow works (kind of) like this:
+    + Get a small chunk from the file (buffer).
+    + Send this chunk to the receiver (in our case our FileUpload API).
+    + Repeat 1-2 until the whole file has been sent.
++ https://johnthiriet.com/efficient-post-calls/ (StreamContent)
 + https://makolyte.com/csharp-disposing-the-request-httpcontent-when-using-httpclient/ (Big File) (Large File) (StreamContent)
++ https://makolyte.com/csharp-how-to-send-a-file-with-httpclient/ (Send File) (Upload File)
++ https://makolyte.com/tag/httpclient/
 + https://makolyte.com/csharp-how-to-add-request-headers-when-using-httpclient/
 + https://makolyte.com/csharp-how-to-read-response-headers-with-httpclient/
 + https://makolyte.com/csharp-how-to-get-the-status-code-when-using-httpclient/
@@ -48,3 +58,4 @@ httpClient.SendAsync(request)...
 + https://makolyte.com/csharp-switch-from-using-httpwebrequest-to-httpclient/ (HttpWebRequest -> HttpClient)
 + https://makolyte.com/csharp-how-to-cancel-an-httpclient-request/
 + https://makolyte.com/csharp-how-to-make-concurrent-requests-with-httpclient/ (Concurrent Requests)
+
