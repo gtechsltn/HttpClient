@@ -36,7 +36,40 @@ httpClient.SendAsync(request)...
 ## Best Practices
 + https://bytedev.medium.com/net-core-httpclient-best-practices-4c1b20e32c6 (Best Practices)
 + https://www.thinktecture.com/en/asp-net-core/aspnet-core-webapi-performance/ (Performance)
-+ https://josef.codes/efficient-file-uploads-with-dotnet/ (Efficient) (Upload File)
++ https://code-maze.com/using-streams-with-httpclient-to-improve-performance-and-memory-usage/ (Streams) (Performance) (Best Practices)
+<pre>
+private async Task CreateCompanyWithStream()
+{
+    var companyForCreation = new CompanyForCreationDto
+    {
+        Name = "Eagle IT Ltd.",
+        Country = "USA",
+        Address = "Eagle IT Street 289"
+    };
+
+    var ms = new MemoryStream();
+    await JsonSerializer.SerializeAsync(ms, companyForCreation);
+    ms.Seek(0, SeekOrigin.Begin);
+
+    var request = new HttpRequestMessage(HttpMethod.Post, "companies");
+    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+    using (var requestContent = new StreamContent(ms))
+    {
+        request.Content = requestContent;
+        requestContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+        using (var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+        {
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStreamAsync();
+            var createdCompany = await JsonSerializer.DeserializeAsync<CompanyDto>(content, _options);
+        }    
+    }    
+}
+</pre>
++ https://josef.codes/efficient-file-uploads-with-dotnet/ (Efficient) (Upload File) (Streams)
   + Read file content with a stream
   + Using a stream allows us to operate on small portions of the file in chunks instead of allocating the whole file.
   + When using a stream, the flow works (kind of) like this:
