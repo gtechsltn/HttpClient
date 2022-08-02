@@ -1,4 +1,14 @@
 # HttpClient
+
+## In C# we can consume RestAPI using the following ways:
++ HttpWebRequest or HttpWebResponse
++ WebClient
++ HttpClient
++ RestSharp
++ Flurl.Http
++ FluentRest
+
+## Overview HttpClient
 + https://www.stevejgordon.co.uk/demystifying-httpclient-internals-sendasync-flow-for-httprequestmessage
 + Part 1 – An introduction to HttpClientFactory
 + Part 2 – Defining Named and Typed Clients
@@ -9,6 +19,8 @@
 
 + ## C# HttpClient
 + https://zetcode.com/csharp/httpclient/
++ https://www.aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/index.html
++ https://www.albahari.com/nutshell/cs5ch16.aspx
 
 ## Sử dụng HttpClient
 + https://xuanthulab.net/networking-su-dung-httpclient-trong-c-tao-cac-truy-van-http.html
@@ -32,6 +44,170 @@ httpClient.SendAsync(request)...
 
 ## Fun with HttpClient
 + https://thomaslevesque.com/2016/12/08/fun-with-the-httpclient-pipeline/
++ http://justcodesnippets.durlut.ro/index.php/2018/11/01/httpclient-with-error-logging-handler-and-retry-handler/
+
+Usage:
+<pre>
+            var cookieContainer = new System.Net.CookieContainer();
+
+            using (var httpClientHandler = new HttpClientHandler() { UseCookies = true, CookieContainer = cookieContainer })
+            using (var errorLoggingHandler = new Handlers.LoggingHandler<AirWatchLogDto>(_httpGetLogger, httpClientHandler))
+            //using (var retryHandler = new RetryHandler(errorLoggingHandler) { RetryCounterCount = retryCounterCount })
+            using (var httpClient = new HttpClients.AirWatchCustomHeadersHttpClient(httpClientHandler, _appSettingsService))
+            {
+                HttpRequestMessage httpRequestMessage = new HttpRequestMessage(httpMethod, requestUri);
+
+                if (httpMethod == HttpMethod.Post && postObject != null)
+                {
+                    string formattedJson = Newtonsoft.Json.JsonConvert.SerializeObject(postObject);
+                    httpRequestMessage.Content = new StringContent(formattedJson, Encoding.UTF8, "application/json");
+                }
+
+                var httpReponseMessage = await httpClient.SendAsync(httpRequestMessage);
+                string content = await httpReponseMessage.Content.ReadAsStringAsync();
+                return httpReponseMessage;
+            }
+</pre>
+
+Retry Handler:
+<pre>
+    public class RetryHandler : DelegatingHandler
+    {
+        private int _retryCounterCount = 3;
+        public int RetryCounterCount { get { return _retryCounterCount; } set { _retryCounterCount = value; } }
+
+        public RetryHandler(HttpMessageHandler innerHandler) : base(innerHandler)
+        {
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            int counter = 0;
+            while (true)
+            {
+                try
+                {
+                    counter++;                    
+                    // base.SendAsync calls the inner handler
+                    var response = await base.SendAsync(request, cancellationToken);
+                    
+                    if (counter >= RetryCounterCount)
+                    {
+                        return response;
+                    }
+                    if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                    {
+                        // 503 Service Unavailable
+                        // Wait a bit and try again later
+                        await Task.Delay(5000, cancellationToken);
+                        continue;
+                    }
+
+                    if (response.StatusCode == (HttpStatusCode)429)
+                    {
+                        // 429 Too many requests
+                        // Wait a bit and try again later
+                        await Task.Delay(1000, cancellationToken);
+                        continue;
+                    }
+
+                    // Not something we can retry, return the response as is
+                    return response;
+                }
+                catch (Exception ex) when (IsNetworkError(ex))
+                {
+                    if (counter >= RetryCounterCount)
+                    {
+                        throw;
+                    }
+                    // Network error
+                    // Wait a bit and try again later
+                    await Task.Delay(2000, cancellationToken);
+                    continue;
+                }
+            }
+        }
+
+        private static bool IsNetworkError(Exception ex)
+        {
+            // Check if it's a network error
+            if (ex is SocketException)
+                return true;
+            if (ex.InnerException != null)
+                return IsNetworkError(ex.InnerException);
+            return false;
+        }
+    }
+</pre>
+
+Logging Handler:
+<pre>
+    //http://www.thomaslevesque.com/2016/12/08/fun-with-the-httpclient-pipeline/
+    public class LoggingHandler<T> : DelegatingHandler
+    {
+        private readonly IHttpClientEventLogger<T> _logger;
+
+        public LoggingHandler(IHttpClientEventLogger<T> logger, HttpMessageHandler innerHandler) : base(innerHandler)
+        {
+            _logger = logger;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                _logger.MapRequest(request);
+                
+                var response = await base.SendAsync(request, cancellationToken);
+                _logger.MapResponse(response);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.MapResponseException(ex);
+                throw;
+            }
+            finally
+            {
+                _logger.LogEvent();
+            }
+        }
+    }
+
+    public class ErrorLoggingHandler<T> : DelegatingHandler
+    {
+        private readonly IHttpClientEventLogger<T> _logger;
+
+        public ErrorLoggingHandler(IHttpClientEventLogger<T> logger, HttpMessageHandler innerHandler) : base(innerHandler)
+        {
+            _logger = logger;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            bool hasError = false;
+            try
+            {
+                _logger.MapRequest(request);
+
+                var response = await base.SendAsync(request, cancellationToken);
+                
+                return response;
+            }
+            catch (Exception ex)
+            {
+                hasError = true;
+                _logger.MapResponseException(ex);
+                throw;
+            }
+            finally
+            {
+                if(hasError)
+                    _logger.LogEvent();
+            }
+        }
+    }
+</pre>
 
 ## Best Practices
 + https://bytedev.medium.com/net-core-httpclient-best-practices-4c1b20e32c6 (Best Practices)
@@ -80,6 +256,7 @@ private async Task CreateCompanyWithStream()
 + https://makolyte.com/csharp-disposing-the-request-httpcontent-when-using-httpclient/ (Big File) (Large File) (StreamContent)
 + https://makolyte.com/csharp-how-to-send-a-file-with-httpclient/ (Send File) (Upload File)
 + https://makolyte.com/tag/httpclient/
++ https://makolyte.com/tag/getasync/
 + https://makolyte.com/csharp-how-to-add-request-headers-when-using-httpclient/
 + https://makolyte.com/csharp-how-to-read-response-headers-with-httpclient/
 + https://makolyte.com/csharp-how-to-get-the-status-code-when-using-httpclient/
@@ -91,4 +268,13 @@ private async Task CreateCompanyWithStream()
 + https://makolyte.com/csharp-switch-from-using-httpwebrequest-to-httpclient/ (HttpWebRequest -> HttpClient)
 + https://makolyte.com/csharp-how-to-cancel-an-httpclient-request/
 + https://makolyte.com/csharp-how-to-make-concurrent-requests-with-httpclient/ (Concurrent Requests)
-
++ https://makolyte.com/csharp-get-and-send-json-with-httpclient/
++ https://makolyte.com/csharp-how-to-unit-test-code-that-uses-httpclient/
++ https://makolyte.com/csharp-newtonsoft-extension-methods-for-httpclient/
++ https://makolyte.com/event-driven-dotnet-how-to-consume-an-sse-endpoint-with-httpclient/
++ https://makolyte.com/csharp-how-to-use-polly-to-do-retries/
++ https://makolyte.com/csharp-circuit-breaker-with-polly/
++ https://makolyte.com/csharp-how-to-change-the-httpclient-timeout-per-request/
++ https://makolyte.com/csharp-how-to-get-the-status-code-when-using-httpclient/
++ https://makolyte.com/how-to-use-toxiproxy-to-verify-your-code-can-handle-timeouts-and-unavailable-endpoints/ (Timeouts)
++ https://makolyte.com/csharp-handling-redirects-with-httpclient/
