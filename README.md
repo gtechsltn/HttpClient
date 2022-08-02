@@ -36,6 +36,7 @@ httpClient.SendAsync(request)...
 ## Best Practices
 + https://bytedev.medium.com/net-core-httpclient-best-practices-4c1b20e32c6
 + https://makolyte.com/csharp-how-to-send-a-file-with-httpclient/ (Send File) (Upload File)
++ https://makolyte.com/csharp-disposing-the-request-httpcontent-when-using-httpclient/ (Big File) (Large File) (StreamContent)
 + https://makolyte.com/csharp-how-to-add-request-headers-when-using-httpclient/
 + https://makolyte.com/csharp-how-to-read-response-headers-with-httpclient/
 + https://makolyte.com/csharp-how-to-get-the-status-code-when-using-httpclient/
