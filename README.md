@@ -5,10 +5,13 @@
 + WebClient
 + HttpClient
 + RestSharp
++ Refit (Xamarin)
 + Flurl.Http
 + FluentRest
 
 ## Overview HttpClient
++ https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests
++ https://www.infoq.com/articles/creating-http-sdks-dotnet-6/
 + https://www.stevejgordon.co.uk/demystifying-httpclient-internals-sendasync-flow-for-httprequestmessage
 + Part 1 – An introduction to HttpClientFactory
 + Part 2 – Defining Named and Typed Clients
@@ -16,8 +19,9 @@
 + Part 4 – Integrating with Polly for transient fault handling
 + Part 5 – Logging
 + https://www.stevejgordon.co.uk/httpclientfactory-asp-net-core-logging
++ https://www.thecodebuzz.com/using-httpclient-best-practices-and-anti-patterns/
 
-+ ## C# HttpClient
+## C# HttpClient
 + https://zetcode.com/csharp/httpclient/
 + https://www.aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/index.html
 + https://www.albahari.com/nutshell/cs5ch16.aspx
@@ -211,6 +215,7 @@ Logging Handler:
 
 ## Best Practices
 + https://bytedev.medium.com/net-core-httpclient-best-practices-4c1b20e32c6 (Best Practices)
++ https://vladiliescu.net/wiki/netcore/ (Best Practices) (Properly)
 + https://www.thinktecture.com/en/asp-net-core/aspnet-core-webapi-performance/ (Performance)
 + https://code-maze.com/using-streams-with-httpclient-to-improve-performance-and-memory-usage/ (Streams) (Performance) (Best Practices)
 <pre>
@@ -256,7 +261,6 @@ private async Task CreateCompanyWithStream()
 + https://makolyte.com/csharp-disposing-the-request-httpcontent-when-using-httpclient/ (Big File) (Large File) (StreamContent)
 + https://makolyte.com/csharp-how-to-send-a-file-with-httpclient/ (Send File) (Upload File)
 + https://makolyte.com/tag/httpclient/
-+ https://makolyte.com/tag/getasync/
 + https://makolyte.com/csharp-how-to-add-request-headers-when-using-httpclient/
 + https://makolyte.com/csharp-how-to-read-response-headers-with-httpclient/
 + https://makolyte.com/csharp-how-to-get-the-status-code-when-using-httpclient/
@@ -278,3 +282,9 @@ private async Task CreateCompanyWithStream()
 + https://makolyte.com/csharp-how-to-get-the-status-code-when-using-httpclient/
 + https://makolyte.com/how-to-use-toxiproxy-to-verify-your-code-can-handle-timeouts-and-unavailable-endpoints/ (Timeouts)
 + https://makolyte.com/csharp-handling-redirects-with-httpclient/
++ https://makolyte.com/tag/issuccessstatuscode/
++ https://makolyte.com/tag/ensuresuccessstatuscode/
++ https://stackoverflow.com/questions/45739753/correct-use-of-ensuresuccessstatuscode-and-issuccessstatuscode
+
+## ASP.NET Core Web API Performance – Throughput For Upload And Download
++ https://www.thinktecture.com/en/asp-net-core/aspnet-core-webapi-performance/
