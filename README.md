@@ -288,3 +288,15 @@ private async Task CreateCompanyWithStream()
 
 ## ASP.NET Core Web API Performance – Throughput For Upload And Download
 + https://www.thinktecture.com/en/asp-net-core/aspnet-core-webapi-performance/
+
+# HttpClient -> SendAsync -> StreamContent -> Custom Header (Bearer Authentication)
++ https://stackoverflow.com/questions/48344819/send-large-file-via-httpclient
++ https://stackoverflow.com/questions/41378457/c-httpclient-file-upload-progress-when-uploading-multiple-file-as-multipartfo
++ https://stackoverflow.com/questions/35907642/custom-header-to-httpclient-request (HAY HAY HAY)
++ https://stackoverflow.com/questions/12022965/adding-http-headers-to-httpclient
++ https://makolyte.com/csharp-how-to-add-request-headers-when-using-httpclient/
++ https://code-maze.com/using-streams-with-httpclient-to-improve-performance-and-memory-usage/
++ https://xuanthulab.net/networking-su-dung-httpclient-trong-c-tao-cac-truy-van-http.html
++ https://www.stevejgordon.co.uk/using-httpcompletionoption-responseheadersread-to-improve-httpclient-performance-dotnet
++ https://www.tugberkugurlu.com/archive/efficiently-streaming-large-http-responses-with-httpclient
++ https://brokul.dev/sending-files-and-additional-data-using-httpclient-in-net-core
